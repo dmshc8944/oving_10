@@ -1,8 +1,8 @@
 class Emne:
-    def __init__(self, emnekode, navn, tid, studiepoeng):
-        self.emnekode = emnekode
+    def __init__(self, kode, navn, semester, studiepoeng):
+        self.kode = kode
         self.navn = navn
-        self.tid = tid
+        self.semester = semester
         self.studiepoeng = studiepoeng
 
     def __str__(self):
