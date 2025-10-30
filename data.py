@@ -1,6 +1,10 @@
 from emne import Emne
+from studieplan import Studieplan
+
 
 emner = []
-studieplan = [[] for _ in range(6)]
+
+# создаём учебный план
+plan = Studieplan(1, "Dataingeniør")
 
 filnavn = "studieplan.txt"
