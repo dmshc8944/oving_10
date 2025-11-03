@@ -1,53 +1,89 @@
-"""from data import emnekoder, tiden, studiepoenger, studieplan, filnavn
+def lagre_alle_data(emner, studieplaner, filnavn):
+    """9. Сохранить все данные в файл"""
+    try:
+        with open(filnavn, "w", encoding="utf-8") as f:
+            # Сохраняем предметы
+            f.write("=== Emner ===\n")
+            for emne in emner:
+                f.write(f"{emne.kode};{emne.navn};{emne.semester};{emne.studiepoeng}\n")
+            
+            # Сохраняем учебные планы
+            f.write("\n=== Studieplaner ===\n")
+            for plan in studieplaner:
+                f.write(f"Plan;{plan.id};{plan.tittel}\n")
+                for semester_num, semester_emner in enumerate(plan.semestre, 1):
+                    emne_koder = [emne.kode for emne in semester_emner]
+                    if emne_koder:  # Сохраняем только непустые семестры
+                        f.write(f"Semester{semester_num};{','.join(emne_koder)}\n")
+        
+        print(f"Alle data er lagret til '{filnavn}'.")
+        print(f"Lagret {len(emner)} emner og {len(studieplaner)} studieplaner.")
+    
+    except Exception as e:
+        print(f"Feil ved lagring: {e}")
 
-def lagre_studieplan_til_fil():
-    with open(filnavn, "w", encoding="utf-8") as f:
-        f.write("=== Emner ===\n")
-        for i in range(len(emnekoder)):
-            f.write(f"{emnekoder[i]} ({tiden[i]}) - {studiepoenger[i]} studiepoeng\n")
-
-        f.write("\n=== Studieplan ===\n")
-        for semester_index, emner_i_semester in enumerate(studieplan, start=1):
-            f.write(f"Semester {semester_index}:\n")
-            if emner_i_semester:
-                for emne_index in emner_i_semester:
-                    f.write(f"  - {emnekoder[emne_index]}\n")
-            else:
-                f.write("  (ingen emner)\n")
-            f.write("\n")
-    print(f"Studieplanen er lagret til '{filnavn}'.")
-
-def lese_studieplan_fra_fill ():
-     with open(filnavn, "r", encoding="utf-8") as f:
-          read = f.read()
-          print(read)
-          return read
-
-
-
-"""
-
-
-def lagre_studieplan_til_fill(self, fillnavn):
-    with open(fillnavn, "w", encoding="utf-8") as f:
-        f.write("=== Emner ===\n")
-        for e in self.emner:
-            f.write(f"{e.kode}; {e.navn}; {e.semester}; {e.studiepoeng}")
-            pass
-
-        f.write("\n=== Studieplann ===\n")
-        for nr in range(1,7):
-            f.write(f"Semester {nr}:")
-            if self.semester[nr]:
-                for e in self.semester[nr]:
-                    f.write(f" - {e.kode}\n")
-            else:
-                f.write("  (ingen emner)\n")
-                f.write("\n")
-        print(f"Studieplanen er lagret til '{fillnavn}'.")
-
-def lese_fra_fill(self, fillnavn):
-    with open(fillnavn, "r", encoding="utf-8") as f:
-        print(f.read) 
-
-
+def les_alle_data(emner, studieplaner, filnavn):
+    """10. Загрузить все данные из файла"""
+    try:
+        with open(filnavn, "r", encoding="utf-8") as f:
+            linjer = f.readlines()
+        
+        # Очищаем текущие данные
+        emner.clear()
+        studieplaner.clear()
+        
+        seksjon = None
+        current_plan = None
+        
+        for linje in linjer:
+            linje = linje.strip()
+            if not linje:
+                continue
+            
+            if linje == "=== Emner ===":
+                seksjon = "emner"
+            elif linje == "=== Studieplaner ===":
+                seksjon = "studieplaner"
+            elif seksjon == "emner" and ";" in linje:
+                # Формат: KODE;NAVN;SEMESTER;STUDIEPOENG
+                deler = linje.split(";")
+                if len(deler) == 4:
+                    kode, navn, semester, studiepoeng = deler
+                    from emne import Emne
+                    nytt_emne = Emne(kode, navn, semester, int(studiepoeng))
+                    emner.append(nytt_emne)
+            
+            elif seksjon == "studieplaner":
+                if linje.startswith("Plan;") and ";" in linje:
+                    # Формат: Plan;ID;TITTEL
+                    deler = linje.split(";")
+                    if len(deler) >= 3:
+                        plan_id = int(deler[1])
+                        plan_tittel = deler[2]
+                        from studieplan import Studieplan
+                        current_plan = Studieplan(plan_id, plan_tittel)
+                        studieplaner.append(current_plan)
+                
+                elif linje.startswith("Semester") and ";" in linje and current_plan:
+                    # Формат: SemesterX;KODE1,KODE2,...
+                    deler = linje.split(";")
+                    if len(deler) == 2:
+                        semester_num = int(deler[0].replace("Semester", ""))
+                        emne_koder = deler[1].split(",") if deler[1] else []
+                        
+                        # Добавляем предметы в семестр
+                        for kode in emne_koder:
+                            if kode:  # Проверяем, что код не пустой
+                                # Находим объект предмета по коду
+                                for emne in emner:
+                                    if emne.kode == kode:
+                                        current_plan.semestre[semester_num - 1].append(emne)
+                                        break
+        
+        print(f"Data er lest inn fra '{filnavn}'.")
+        print(f"Lest inn {len(emner)} emner og {len(studieplaner)} studieplaner.")
+    
+    except FileNotFoundError:
+        print(f"Fil '{filnavn}' ikke funnet.")
+    except Exception as e:
+        print(f"Feil ved innlesing: {e}")
