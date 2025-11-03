@@ -233,6 +233,7 @@ def hovedmeny():
             lagre_alle_data(emner, studieplaner, filnavn)
         elif valg == "10":
             les_alle_data(emner, studieplaner, filnavn)
+            skriv_ut_studieplan()
         elif valg == "11":
             print("Avslutter programmet. Ha det bra!")
             break
