@@ -1,0 +1,8 @@
+=== Emner ===
+DAT120;Programmering;H;10
+MAT100;Matematikk;H;10
+
+=== Studieplaner ===
+Plan;1;Dataingeniør
+Semester1;DAT120
+Plan;2;Test
